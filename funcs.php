@@ -3,36 +3,36 @@ define("BR", "<br />");
 define("HR", "<hr />");
 
 class DataPiece {
-    public $type; /* its type*/
-    public $f_list; /* factors list */
+    public $type = null; /* its type*/
+    public $f_list = null; /* factors list */
+    
+    public function __construct($f_str) {
+        $this->type = $f_str[0];
+        $this->f_list = array_slice($f_str, 1);
+    }
+    
+    public function __toString() {
+        $str = $this->type." | ";
 
-    public function __construct($type, $f_list) {
-        $this->$type = $type;
-        $this->$f_list = $f_list;
+        foreach($this->f_list as $f) {
+            $str = $str.$f." ";
+        }
+
+        return $str;
     }
 }
 
 function getdata($filename = "data.txt") {
-    $data[] = array(); /* as form of array of arrays */
     $fh = fopen($filename, 'r');
-  
-    $n_factors = (int) fgets($fh);
-    
-    while ($line = fgets($fh)) {
-        $line = explode(':', $line);
-        $data[] = $line;
-    }
+    $data[] = array(); /* as form of array of arrays */
 
-    fclose($fh);
-  
-    foreach($data as $d) {
-        for($i = 0; $i < $n_factors; $i++) {
-            print "factor_$i: ".$d[$i]." ";
-        }
-      
-        echo BR;
+    while ($line = fgets($fh)) {
+        $data[] = $dp = new DataPiece(explode(':', $line));
+        echo $dp.BR;
     }
-  
+    
+    fclose($fh);
+
     return $data;
 }
 
