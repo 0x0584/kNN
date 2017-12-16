@@ -10,7 +10,6 @@
 /* all the functions */
 require_once 'funcs.php';
 
-getdata();
-
-echo HR."this is a test";
+echo findNearestNeighbor(new DataPiece('?', array(11, 45, 0.5, 12)),
+                         getdata(), 3);
 ?>
