@@ -18,6 +18,6 @@ echo implode(",", $a).HR
     .implode(",",quicksort($b, true));
 echo HR;
 
-echo findNearestNeighbor(new DataPiece('?', array(11, 45, 0.5, 12)),
-                         getdata(), 3);
+echo find_nn(new DataPiece('?', array(11, 45, 0.5, 12)),
+             getdata(), 3);
 ?>

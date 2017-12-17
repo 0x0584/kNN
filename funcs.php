@@ -2,21 +2,56 @@
 define("BR", "<br />");
 define("HR", "<hr />");
 
-/**
- * @author Anas Rchid (0x0584)
- * @class this class represents the data. each piece consists a type
- *  and a list of factors.
+include 'quicksort.php';
+
+/** 
+ * DataPiece Class
  *
+ * @package     kNN
+ * @class       DataPiece
+ * @desciption  this is the fundamental class, is consists of a $type
+ *              and a factor list, $f_list
+ * @author      0x0584 <rchid.anas@gmail.com>
  */
 class DataPiece {
-    public $type = null; /* its type*/
-    public $f_list = null; /* factors list */
+    /**
+     * $type the datapiece's `Type`
+     * 
+     * @description this could be `AA` or `Romance`
+     * @author      0x0584 <rchid.anas@gmail.com>
+     */
+    public $type = null; 
     
+    /** 
+     * $f_list the datapiece's `Factors list` 
+     *
+     * @description the number of the factors could be anything, but it 
+     *              must be the same for all other datapieces. 
+     * @author      0x0584 <rchid.anas@gmail.com>
+     */
+    public $f_list = null;
+
+    /**
+     * DataPiece constructor
+     * 
+     * @description initialize the object's 
+     * @author      0x0584 <rchid.anas@gmail.com> 
+     * @param       string $type the type of the datapiece
+     * @param       array $f_list list of factors 
+     */
     public function __construct($type, $f_list) {
         $this->type = $type;
         $this->f_list = $f_list;
     }
-    
+
+    /**
+     * DataPiece toString 
+     * 
+     * @description this return the object as the following form 
+     *              `AA | 52.10 56.23 11.00 2.37`
+     * @author 0x0584 <rchid.anas@gmail.com>
+     * @return      string $str the object information as a String
+     */
     public function __toString() {
         $str = $this->type." | ";
 
@@ -29,9 +64,12 @@ class DataPiece {
 }
 
 /** 
- * @author Anas Rchid (0x0584)
- * @description get data from a file into an array of data pieces
- * @return array of data pieces
+ * Get data from the $filename 
+ * @description get data from a file, named $filename, and put it into
+ *              an array of DataPieces
+ * @author      0x0584 <rchid.anas@gmail.com>
+ * @param       $filename as a string, default is `data.txt`
+ * @return      array of DataPiece's
  */
 function getdata($filename = "data.txt") {
     $fh = fopen($filename, 'r');
@@ -44,7 +82,7 @@ function getdata($filename = "data.txt") {
         $line = explode(':', $line);
         $data[] = new DataPiece($line[0],
                                 array_slice($line, 1));
-    } // 
+    }
     
     fclose($fh);
 
@@ -53,9 +91,14 @@ function getdata($filename = "data.txt") {
 }
 
 /** 
- * @author Anas Rchid (0x0584)
+ * Calculate the distance between $x and $y, which are array of factors,
+ * using the Ecludian methode
+ *
  * @description get data from a file into an array of data pieces
- * @return array of data pieces
+ * @author      0x0584 <rchid.anas@gmail.com>
+ * @param       $x first array of factors list
+ * @param       $y second array of factors list
+ * @return      $squrs somme of the square root of all the 
  */
 function calcdistance($x, $y) {
     if (count($x) != count($y)) {
@@ -72,76 +115,64 @@ function calcdistance($x, $y) {
 }
 
 /** 
- * @author Anas Rchid (0x0584)
- * @description get data from a file into an array of data pieces
- * @return array of data pieces
+ * Find the $k-th Nearest Neighbor to the passed $element in $data
+ * 
+ * @description compute the distances using `calcdistance`. then 
+ *              take the closest $k-th elements and find the $type
+ *              match. return the $type.
+ * @author      0x0584 <rchid.anas@gmail.com>
+ * @param       $element is DataPiece
+ * @param       $data is an array of DataPieces 
+ * @param       $k is the number of the nearest neighbors to take
+ *              from $data
+ * @return      the guessed $type of the element 
  */
-function findNearestNeighbor($element, $data, $k) {
+function find_nn($element, $data, $k = 3) {
     $results = null;
+    $type = "";
     
     /* 1. find the distance between the element and everything else */
     foreach ($data as $item) {
-        $results[] = calcdistance($item->f_list,
-                                  $element->f_list);
+        $results[] = array("type" => $item->type,
+                           "distance" => calcdistance($item->f_list,
+                                              $element->f_list));
     }
 
     /* 2. sort the results */
-    $results = quicksort($results, true); /* this is working right now */
-    echo implode(BR, $results);
+    # $results = quicksort($results, true); /* this is working right now */
+
+    usort($results, 'descendant');
+
+    foreach ($results as $key => $value) {
+        echo BR.$key." <+ ".$value['distance']." - ".$value['type'];
+    }
+
+    $list = null;
     
     /* TODO: 3. select the k-th nearest-neighbors */
     for ($i = 0; $i < $k; $i++) {
-        
+        $list[] = $results[$i]['type'];
     }
+
+    foreach ($list as $foo) {
+        echo BR.$foo;
+    }
+    
+    return $type;
 }
 
 /** 
- * @author Anas Rchid (0x0584)
- * @description the implementation of the famous quick sort algorithm
- * (source Wikipedia)
- *
- * algorithm quicksort(A, lo, hi) is
- *   if lo < hi then
- *       p := partition(A, lo, hi)
- *       quicksort(A, lo, p - 1 )
- *       quicksort(A, p + 1, hi)
- *
- * algorithm partition(A, lo, hi) is
- *   pivot := A[hi]
- *   i := lo - 1    
- *   for j := lo to hi - 1 do
- *       if A[j] < pivot then
- *           i := i + 1
- *           swap A[i] with A[j]
- *   if A[hi] < A[i + 1] then
- *       swap A[i + 1] with A[hi]
- *   return i + 1
- *
- * @return array of data pieces
+ * This function is used with PHP's built-in sort function `usort` 
+ * 
+ * @description compare $a and $b to achieve descendant order, which 
+ *              both are associative array, members are string $type
+ *              and a float $distance 
+ * @author      0x0584 <rchid.anas@gmail.com>
+ * @param       $a first element to compare
+ * @param       $b second element to compare 
+ * @return      true if $b's distance is bigger than $a's distance
  */
-function quicksort(&$array, $desc = false) {
-    /* return if only one element is left */
-    if (count($array) <= 1) return  $array;
-
-    $pivot = $array[0];		/* select pivot point at index 0 */
-    $left = array();
-    $right = array();
-    
-    /* loop and compare set value to partition */
-    for ($i = 1; $i < count($array); $i++) {
-        if ($desc ? $array[$i] > $pivot : $array[$i] < $pivot) {
-            $left[] = $array[$i];
-        } else $right[] = $array[$i];
-    }
-
-    # echo HR."left: ".implode(", ", $left)
-    #        .BR."pivot: $pivot"
-    #        .BR."right: ".implode(", ", $right).HR;
-
-    
-    /* merge array left ,pivot, right */
-    return array_merge(quicksort($left, $desc),
-                       array($pivot),
-                       quicksort($right, $desc));
+function descendant($a, $b) {
+    return $a['distance'] < $b['distance'];
 }
 ?>
