@@ -25,8 +25,7 @@ class DataPiece {
         }
 
         return $str;
-    }
-    
+    }   
 }
 
 /** 
@@ -87,7 +86,13 @@ function findNearestNeighbor($element, $data, $k) {
     }
 
     /* 2. sort the results */
-    quicksort($results);    
+    $results = quicksort($results, true); /* this is working right now */
+    echo implode(BR, $results);
+    
+    /* TODO: 3. select the k-th nearest-neighbors */
+    for ($i = 0; $i < $k; $i++) {
+        
+    }
 }
 
 /** 
@@ -114,36 +119,29 @@ function findNearestNeighbor($element, $data, $k) {
  *
  * @return array of data pieces
  */
-function quicksort(&$array) {
-    __quicksort($array, 0, count($array) - 1);
-}
+function quicksort(&$array, $desc = false) {
+    /* return if only one element is left */
+    if (count($array) <= 1) return  $array;
 
-function __quicksort(&$array, $low, $high) {
-    if ($low < $high) {
-        $pivot = __partition($array, $low, $high);
-        __quicksort($array, $low, $pivot - 1);
-        __quicksort($array, $pivot + 1, $high); 
-    } 
-}
-
-function __partition(&$array, $low, $high) {
-    $pivot = $array[$high];
-    $index = ($low - 1);
-
-    for ($i = $low; $i < ($high - 1); $i++) {
-        if ($array[$i] < $pivot) {
-            $i++;
-            /* swapping elements at i and ind*/ 
-            list($array[$i], $array[$index]) = array($array[$index],
-                                                     $array[$i]);
-        }
-    }
-
-    if ($array[$high] < $array[$index + 1]) {
-        list($array[$high], $array[$index]) = array($array[$index],
-                                                     $array[$high]);
-    }
+    $pivot = $array[0];		/* select pivot point at index 0 */
+    $left = array();
+    $right = array();
     
-    return ($index + 1);
+    /* loop and compare set value to partition */
+    for ($i = 1; $i < count($array); $i++) {
+        if ($desc ? $array[$i] > $pivot : $array[$i] < $pivot) {
+            $left[] = $array[$i];
+        } else $right[] = $array[$i];
+    }
+
+    # echo HR."left: ".implode(", ", $left)
+    #        .BR."pivot: $pivot"
+    #        .BR."right: ".implode(", ", $right).HR;
+
+    
+    /* merge array left ,pivot, right */
+    return array_merge(quicksort($left, $desc),
+                       array($pivot),
+                       quicksort($right, $desc));
 }
 ?>
