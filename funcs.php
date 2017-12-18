@@ -1,5 +1,4 @@
 <?php
-# include 'quicksort.php';
 require_once 'global.php';
 require_once 'debug.php';
 
@@ -179,9 +178,8 @@ function calcdistance($x, $y) {
  * @return      the guessed $type of the element 
  */
 function find_nn($element, $data, $k = 3) {
-    $results = null;
-    
     /* 1. find the distance between the element and everything else */
+    $results = null;
     foreach ($data as $item) {
         $results[] = array("type" => $item->type,
                            "distance" => calcdistance($item->f_list,
@@ -189,74 +187,45 @@ function find_nn($element, $data, $k = 3) {
     }
 
     /* 2. sort the results */
-    # $results = quicksort($results, true); /* this is working right now */
     usort($results, 'descendant');
 
     $type = "";
     $list = null;
     
     /* 3. select the k-th nearest-neighbors */
-    /* get the types */
     for ($i = 0; $i < $k; $i++) {
         $list[] = $results[$i]['type'];
         echo $results[$i]['type']." ".$results[$i]['distance'].BR;
     }
 
-    /** 
-     *  ####
-     *  #### some where here, guess is type_count
-     *  ####  
-     */
-    /* count the elements occurrence */
+    /* 3.1 count the elements occurrence */
     $type_count = array_fill(0, count(DataPiece::$__types), 0);
 
-    echo HR;
-    d_array(DataPiece::$__types, "list of types ");
-    d_array($type_count, "type_count ");
-    d_array($list, "list ");
-    echo HR;
-    echo "count: ".count(DataPiece::$__types);
-    echo DataPiece::$__types[2];
-
-    /* the funcking problem is just an index problem! WTF! really!! 
-     * dealing with dynamic arrays is just a mess. SHIT! */
-    print_r(DataPiece::$__types);
-    
-    /* for all the types */
+    /* 3.2 compare elements and found types */
     foreach ($list as $element) {
-        // $i = 0; $i < count(DataPiece::$__types); $i++)
-        echo HR;
-        echo "element: $element".BR;
-
-        $i = 0;
+        $index_type = 0; /* index of type */
+        /* loop through types */
         foreach (DataPiece::$__types as $t) {
-            /* for all the elements */
-            echo "picked_type: ".$t.BR;
-            /* check if the current element is the same as the types */
             if (!strcmp($element, $t)) {
-                echo $element." # ". $t.BR;
-                $type_count[$i]++; /* update elements count */
-                // d_array($type_count);
-                break;
+                /* update type's count */
+                $type_count[$type_index]++;
+                /* take a */ break;
             }
-            $i++;
+            $index_type++;
         }
-
-        d_array(DataPiece::$__types, "list of types ");
-        d_array($type_count);
-        echo "end of loop #$i.".BR;
-        echo HR;
     }
     
-    $index_max = 0;
     
-    /* select the biggest element's index */
-    for ($i = 1; $i < count(type_count); $i++) {
+    /* 4. select the biggest element's index */
+    $index_max = 0;
+    for ($i = 0; $i < count($list); $i++) {
         if (type_count[$i] > type_count[$index_max]) {
             $index_max = $i;
         }
     }
-    $type = DataPiece::$__types[$index_max + 1];
+
+    /* 5. we found it! */
+    $type = DataPiece::$__types[$index_max];
     
     return $type;
 }
