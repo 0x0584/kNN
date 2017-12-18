@@ -161,6 +161,17 @@ function calcdistance($x, $y) {
     return sqrt($squrs);
 }
 
+/** 
+ * Compute the distance between the $element and all the other 
+ * elements in the $data set
+ *
+ * @description this function calls `calcdistance` to compute 
+ *              the distance between elements
+ * @author      0x0584 <rchid.anas@gmail.com>
+ * @param       $element the target Datapiece
+ * @param       $data array of all the Datapieces
+ * @return      $results array of types and thier distances 
+ */
 function compute_results($element, $data) {
     /* 1. find the distance between the element and everything else */
     $results = null;
@@ -177,6 +188,15 @@ function compute_results($element, $data) {
     return $results;
 }
 
+/** 
+ * List neighbors based on the $results
+ *
+ * @description get the top $k-elements from the results
+ * @author      0x0584 <rchid.anas@gmail.com>
+ * @param       $results array of distances 
+ * @param       $k the target number of elements to pick from $results
+ * @return      $list of neighbors
+ */
 function list_neighbors($results, $k) {
     $list = null;
 
@@ -188,6 +208,7 @@ function list_neighbors($results, $k) {
 
     return $list;
 }
+
 /** 
  * Find the $k-th Nearest Neighbor to the passed $element in $data
  * 
