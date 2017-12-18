@@ -23,12 +23,7 @@ class DataPiece {
     /**
      * $thisisdumb is a hack to solve an array problem i have faced
      *
-     * @description this is a dumb hack, because you can't, really, 
-     *              declare a variable in php and i don't know why
-     *              when you initialize an array the first the first
-     *              element is always null. i've searched a lot.
-     *              i would figure this out later! now, let's stick
-     *              with this dumb solution. Oh Denis! look what they
+     * @description Oh Denis! look what they
      *              have done! 
      * @author      0x0584 <rchid.anas@gmail.com>
      */
@@ -157,19 +152,22 @@ function getdata($filename = "data.txt") {
  *
  * @description get data from a file into an array of data pieces
  * @author      0x0584 <rchid.anas@gmail.com>
- * @param       $x first array of factors list
- * @param       $y second array of factors list
+ * @param       $facts0 first array of factors list
+ * @param       $facts1 second array of factors list
  * @return      $squrs somme of the square root of all the 
  */
-function calcdistance($x, $y) {
-    if (count($x) != count($y)) {
-        echo "this would not work properly";
-    }
-    
-    $squrs = 0;
+function calcdistance($facts0, $facts1) {
+    /* factors count */
+    $cf0 = count($facts0);
+    $cf1 = count($facts1);
 
-    for ($i = 0; $i < count($x); $i++) {
-        $squrs += pow($x[$i] - $y[$i], 2); 
+    /* take the lowest factor count as the limit */
+    $limit = (($cf0 != $cf1) ? ($cf0 > $cf1 ? $cf1 : $cf0) : $cf0);
+
+    $squrs = 0; /* some of the squares */
+
+    for ($i = 0; $i < $limit; $i++) {
+        $squrs += pow($facts0[$i] - $facts1[$i], 2); 
     }
     
     return sqrt($squrs);
@@ -191,9 +189,12 @@ function compute_results($element, $data) {
     $results = null;
 
     foreach ($data as $item) {
-        $results[] = array("type" => $item->type,
-                           "distance" => calcdistance($item->f_list,
-                                                      $element->f_list));
+        $ifacts = $item->f_list;
+        $efacts = $element->f_list;
+        $results[] = array(
+            "type" => $item->type,
+            "distance" => calcdistance($ifacts, $efacts)
+        );
     }
 
     /* 2. sort the results */
