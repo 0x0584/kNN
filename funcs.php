@@ -1,10 +1,6 @@
 <?php
 require_once 'global.php';
-require_once 'debug.php';
-
-/* debug mode is on and it's not working! WTF! */
-d_on();
-
+    
 /** 
  * DataPiece Class
  *
@@ -24,13 +20,18 @@ class DataPiece {
      */
     public static $__types = null;
 
-    /* this is a dumb hack, because you can't, really, declare a 
-     * variable in php and i don't know why when you initialize 
-     * an array the first the first element is always null. i've 
-     * searched a lot. 
-     * 
-     * i would figure this out later! now, let's stick with this 
-     * dumb solution. Oh Denis! look what they have done! */
+    /**
+     * $thisisdumb is a hack to solve an array problem i have faced
+     *
+     * @description this is a dumb hack, because you can't, really, 
+     *              declare a variable in php and i don't know why
+     *              when you initialize an array the first the first
+     *              element is always null. i've searched a lot.
+     *              i would figure this out later! now, let's stick
+     *              with this dumb solution. Oh Denis! look what they
+     *              have done! 
+     * @author      0x0584 <rchid.anas@gmail.com>
+     */
     private static $thisisdumb = null;
     
     /**
@@ -61,9 +62,6 @@ class DataPiece {
      */
     public function __construct($type, $f_list) {
         /* add new types to the list */
-        /* ####
-         * #### here
-         * #### */
         if (self::$__types === null) {
             self::$__types = array($type);
             self::$thisisdumb = true;
@@ -74,12 +72,12 @@ class DataPiece {
                     break;
                 }
             }
+            
             self::$__types = array_unique(self::$__types);
-
-            // d_array(self::$__types);
+            uasort(self::$__types, 'strcmp');
 
             /* remove the first element of the array */
-            if (self::$thisisdumb) {
+            if (self::$thisisdumb === true) {
                 self::$__types = array_splice(self::$__types, 1);
                 self::$thisisdumb = false;
             }
@@ -163,6 +161,33 @@ function calcdistance($x, $y) {
     return sqrt($squrs);
 }
 
+function compute_results($element, $data) {
+    /* 1. find the distance between the element and everything else */
+    $results = null;
+
+    foreach ($data as $item) {
+        $results[] = array("type" => $item->type,
+                           "distance" => calcdistance($item->f_list,
+                                                      $element->f_list));
+    }
+
+    /* 2. sort the results */
+    usort($results, 'descendant');
+
+    return $results;
+}
+
+function list_neighbors($results, $k) {
+    $list = null;
+
+    for ($i = 0; $i < $k; $i++) {
+        $list[] = $results[$i]['type'];
+        # echo $results[$i]['type']." "
+        #     .$results[$i]['distance'].BR;
+    }
+
+    return $list;
+}
 /** 
  * Find the $k-th Nearest Neighbor to the passed $element in $data
  * 
@@ -178,30 +203,17 @@ function calcdistance($x, $y) {
  * @return      the guessed $type of the element 
  */
 function find_nn($element, $data, $k = 3) {
-    /* 1. find the distance between the element and everything else */
-    $results = null;
-    foreach ($data as $item) {
-        $results[] = array("type" => $item->type,
-                           "distance" => calcdistance($item->f_list,
-                                                      $element->f_list));
-    }
+    /* 1. calculate the distance between the element 
+     *    and the dataset */
+    $results = compute_results($element, $data);
 
-    /* 2. sort the results */
-    usort($results, 'descendant');
-
-    $type = "";
-    $list = null;
+    /* 2. select the k-th nearest-neighbors */
+    $list = list_neighbors($results, $k);
     
-    /* 3. select the k-th nearest-neighbors */
-    for ($i = 0; $i < $k; $i++) {
-        $list[] = $results[$i]['type'];
-        echo $results[$i]['type']." ".$results[$i]['distance'].BR;
-    }
-
-    /* 3.1 count the elements occurrence */
+    /* 2.1 count the elements occurrence */
     $type_count = array_fill(0, count(DataPiece::$__types), 0);
 
-    /* 3.2 compare elements and found types */
+    /* 2.2 compare elements and found types */
     foreach ($list as $element) {
         $index_type = 0; /* index of type */
         /* loop through types */
@@ -215,8 +227,7 @@ function find_nn($element, $data, $k = 3) {
         }
     }
     
-    
-    /* 4. select the biggest element's index */
+    /* 3. select the biggest element's index */
     $index_max = 0;
     for ($i = 0; $i < count($list); $i++) {
         if (type_count[$i] > type_count[$index_max]) {
@@ -224,7 +235,7 @@ function find_nn($element, $data, $k = 3) {
         }
     }
 
-    /* 5. we found it! */
+    /* 4. we found it! */
     $type = DataPiece::$__types[$index_max];
     
     return $type;
@@ -244,6 +255,4 @@ function find_nn($element, $data, $k = 3) {
 function descendant($a, $b) {
     return $a['distance'] < $b['distance'];
 }
-
-echo HR."end.".HR;
 ?>
