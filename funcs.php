@@ -215,28 +215,39 @@ function find_nn($element, $data, $k = 3) {
     d_array($type_count, "type_count ");
     d_array($list, "list ");
     echo HR;
+    echo "count: ".count(DataPiece::$__types);
+    echo DataPiece::$__types[2];
 
+    /* the funcking problem is just an index problem! WTF! really!! 
+     * dealing with dynamic arrays is just a mess. SHIT! */
+    print_r(DataPiece::$__types);
+    
     /* for all the types */
-    for ($i = 0; $i < count(DataPiece::$__types); $i++) {
-        $picked_type = DataPiece::$__types[$i];
-        /* for all the elements */
-        foreach ($list as $element) {
-            echo HR;
-            echo "picked_type: ".$picked_type.BR;
-            echo "element: $element".BR;
+    foreach ($list as $element) {
+        // $i = 0; $i < count(DataPiece::$__types); $i++)
+        echo HR;
+        echo "element: $element".BR;
 
-            echo HR;
+        $i = 0;
+        foreach (DataPiece::$__types as $t) {
+            /* for all the elements */
+            echo "picked_type: ".$t.BR;
             /* check if the current element is the same as the types */
-            if (!strcmp($element, DataPiece::$__types[$i])) {
-                echo " i = $i ".$element." ". DataPiece::$__types[$i].BR;
+            if (!strcmp($element, $t)) {
+                echo $element." # ". $t.BR;
                 $type_count[$i]++; /* update elements count */
                 // d_array($type_count);
                 break;
             }
-
+            $i++;
         }
-    }
+
+        d_array(DataPiece::$__types, "list of types ");
         d_array($type_count);
+        echo "end of loop #$i.".BR;
+        echo HR;
+    }
+    
     $index_max = 0;
     
     /* select the biggest element's index */
