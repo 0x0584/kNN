@@ -33,6 +33,14 @@ class DataPiece {
      * @author      0x0584 <rchid.anas@gmail.com>
      */
     private static $thisisdumb = null;
+
+    /**
+     * $unknowntype is, as its name indicates, what it is.
+     *
+     * @description reference to unknown types
+     * @author      0x0584 <rchid.anas@gmail.com>
+     */
+    private static $unknowntype = '?';
     
     /**
      * $type the datapiece's `Type`
@@ -62,6 +70,10 @@ class DataPiece {
      */
     public function __construct($type, $f_list) {
         /* add new types to the list */
+        if (!strcmp($type, self::$unknowntype)) {
+            goto THERE;
+        }
+        
         if (self::$__types === null) {
             self::$__types = array($type);
             self::$thisisdumb = true;
@@ -83,6 +95,8 @@ class DataPiece {
             }
         }
 
+        THERE:
+        
         $this->type = $type;
         $this->f_list = $f_list;
     }
@@ -247,12 +261,15 @@ function find_nn($element, $data, $k = 3) {
             $index_type++;
         }
     }
+
+    /* i have to learn ohw to deal with arrays, as quick as possible! */    
+    $type_count = array_splice($type_count, 1);
     
     /* 3. select the biggest element's index */
-    $index_max = 0;
-    for ($i = 0; $i < count($list); $i++) {
-        if (type_count[$i] > type_count[$index_max]) {
-            $index_max = $i;
+    for ($i = 0, $index_max = $type_count[$i];
+         $i < count($type_count); $i++) {
+        if ($type_count[$i] > $type_count[$index_max]) {
+            echo $index_max = $i;
         }
     }
 

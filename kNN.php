@@ -2,7 +2,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *                        AUTHOR: ANAS RCHID                           *
  *                       CREATED: 11 Dec 2017                          *
- *                       UPDATE: 12/18/2017                            *
+ *                        UPDATE: 18 Dec 2017                            *
  *                                                                     * 
  *      DESCRIPTION: Implementation de kNN avec plusieurs facteurs     *
  *                   et chaque facteur a un poids different.           *
@@ -15,7 +15,7 @@ $k = 3;
 /* les donnees */
 $dataset = getdata();
 /* l'element */
-$mystery_element = new DataPiece('?', array(11, 45, 0.5, 12));
+$mystery_element = new DataPiece('?', array(11, 2));
 /* les resultat des calcules */
 $results = compute_results($mystery_element, $dataset);
 /* list des elements les plus proches dans la base de donnee */
