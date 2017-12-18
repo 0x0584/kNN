@@ -1,8 +1,10 @@
 <?php
-define("BR", "<br />");
-define("HR", "<hr />");
+# include 'quicksort.php';
+require_once 'global.php';
+require_once 'debug.php';
 
-include 'quicksort.php';
+/* debug mode is on and it's not working! WTF! */
+d_on();
 
 /** 
  * DataPiece Class
@@ -15,12 +17,30 @@ include 'quicksort.php';
  */
 class DataPiece {
     /**
+     * $__types is an array that contains all the types
+     *
+     * @description each time a new data type is created, if it has a new
+     *              type, we append its type to this array.
+     * @author      0x0584 <rchid.anas@gmail.com>
+     */
+    public static $__types = null;
+
+    /* this is a dumb hack, because you can't, really, declare a 
+     * variable in php and i don't know why when you initialize 
+     * an array the first the first element is always null. i've 
+     * searched a lot. 
+     * 
+     * i would figure this out later! now, let's stick with this 
+     * dumb solution. Oh Denis! look what they have done! */
+    private static $thisisdumb = null;
+    
+    /**
      * $type the datapiece's `Type`
      * 
      * @description this could be `AA` or `Romance`
      * @author      0x0584 <rchid.anas@gmail.com>
      */
-    public $type = null; 
+    public $type = null;
     
     /** 
      * $f_list the datapiece's `Factors list` 
@@ -36,10 +56,36 @@ class DataPiece {
      * 
      * @description initialize the object's 
      * @author      0x0584 <rchid.anas@gmail.com> 
+     * @staticvar   $__types array of data types 
      * @param       string $type the type of the datapiece
      * @param       array $f_list list of factors 
      */
     public function __construct($type, $f_list) {
+        /* add new types to the list */
+        /* ####
+         * #### here
+         * #### */
+        if (self::$__types === null) {
+            self::$__types = array($type);
+            self::$thisisdumb = true;
+        } else {
+            foreach (self::$__types as $t) {
+                if (strcmp($t, $type)) {
+                    self::$__types[] = $type;
+                    break;
+                }
+            }
+            self::$__types = array_unique(self::$__types);
+
+            // d_array(self::$__types);
+
+            /* remove the first element of the array */
+            if (self::$thisisdumb) {
+                self::$__types = array_splice(self::$__types, 1);
+                self::$thisisdumb = false;
+            }
+        }
+
         $this->type = $type;
         $this->f_list = $f_list;
     }
@@ -60,7 +106,11 @@ class DataPiece {
         }
 
         return $str;
-    }   
+    }
+
+    public function getTypesList() {
+        return self::$__types;
+    }
 }
 
 /** 
@@ -121,6 +171,7 @@ function calcdistance($x, $y) {
  *              take the closest $k-th elements and find the $type
  *              match. return the $type.
  * @author      0x0584 <rchid.anas@gmail.com>
+ * @staticvar   $__types array of types from class DataPiece 
  * @param       $element is DataPiece
  * @param       $data is an array of DataPieces 
  * @param       $k is the number of the nearest neighbors to take
@@ -129,34 +180,72 @@ function calcdistance($x, $y) {
  */
 function find_nn($element, $data, $k = 3) {
     $results = null;
-    $type = "";
     
     /* 1. find the distance between the element and everything else */
     foreach ($data as $item) {
         $results[] = array("type" => $item->type,
                            "distance" => calcdistance($item->f_list,
-                                              $element->f_list));
+                                                      $element->f_list));
     }
 
     /* 2. sort the results */
     # $results = quicksort($results, true); /* this is working right now */
-
     usort($results, 'descendant');
 
-    foreach ($results as $key => $value) {
-        echo BR.$key." <+ ".$value['distance']." - ".$value['type'];
-    }
-
+    $type = "";
     $list = null;
     
-    /* TODO: 3. select the k-th nearest-neighbors */
+    /* 3. select the k-th nearest-neighbors */
+    /* get the types */
     for ($i = 0; $i < $k; $i++) {
         $list[] = $results[$i]['type'];
+        echo $results[$i]['type']." ".$results[$i]['distance'].BR;
     }
 
-    foreach ($list as $foo) {
-        echo BR.$foo;
+    /** 
+     *  ####
+     *  #### some where here, guess is type_count
+     *  ####  
+     */
+    /* count the elements occurrence */
+    $type_count = array_fill(0, count(DataPiece::$__types), 0);
+
+    echo HR;
+    d_array(DataPiece::$__types, "list of types ");
+    d_array($type_count, "type_count ");
+    d_array($list, "list ");
+    echo HR;
+
+    /* for all the types */
+    for ($i = 0; $i < count(DataPiece::$__types); $i++) {
+        $picked_type = DataPiece::$__types[$i];
+        /* for all the elements */
+        foreach ($list as $element) {
+            echo HR;
+            echo "picked_type: ".$picked_type.BR;
+            echo "element: $element".BR;
+
+            echo HR;
+            /* check if the current element is the same as the types */
+            if (!strcmp($element, DataPiece::$__types[$i])) {
+                echo " i = $i ".$element." ". DataPiece::$__types[$i].BR;
+                $type_count[$i]++; /* update elements count */
+                // d_array($type_count);
+                break;
+            }
+
+        }
     }
+        d_array($type_count);
+    $index_max = 0;
+    
+    /* select the biggest element's index */
+    for ($i = 1; $i < count(type_count); $i++) {
+        if (type_count[$i] > type_count[$index_max]) {
+            $index_max = $i;
+        }
+    }
+    $type = DataPiece::$__types[$index_max + 1];
     
     return $type;
 }
@@ -175,4 +264,6 @@ function find_nn($element, $data, $k = 3) {
 function descendant($a, $b) {
     return $a['distance'] < $b['distance'];
 }
+
+echo HR."end.".HR;
 ?>
