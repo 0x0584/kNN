@@ -1,4 +1,20 @@
 <?php
+/**
+ * Functions to handle pattern recognition using k-NN algorithm 
+ *
+ * @package     kNN
+ * @description this file has functions like `getdata`, `list_neighbors` 
+ *              up to `find_nn` which returns the guessed type.
+ * @author      0x0584 <rchid.anas@gmail.com>
+ */
+
+/** 
+ * Global variables and definitions  
+ *
+ * @package     globals
+ * @desciption  this contains things BR and HR
+ * @author      0x0584 <rchid.anas@gmail.com>
+ */
 require_once 'global.php';
     
 /** 
@@ -12,17 +28,20 @@ require_once 'global.php';
  */
 class DataPiece {
     /**
-     * $__types is an array that contains all the types
+     * An array that contains all the types
      *
+     * @package     kNN
      * @description each time a new data type is created, if it has a new
      *              type, we append its type to this array.
      * @author      0x0584 <rchid.anas@gmail.com>
+     * @type        array of string
      */
     public static $__types = null;
 
     /**
-     * $thisisdumb is a hack to solve an array problem i have faced
+     * A hack to solve an array problem i have faced
      *
+     * @package     kNN
      * @description Oh Denis! look what they
      *              have done! 
      * @author      0x0584 <rchid.anas@gmail.com>
@@ -30,24 +49,27 @@ class DataPiece {
     private static $thisisdumb = null;
 
     /**
-     * $unknowntype is, as its name indicates, what it is.
+     * Is, as its name indicates, what it is.
      *
+     * @package     kNN
      * @description reference to unknown types
      * @author      0x0584 <rchid.anas@gmail.com>
      */
     private static $unknowntype = '?';
     
     /**
-     * $type the datapiece's `Type`
+     * The DataPiece's type
      * 
+     * @package     kNN
      * @description this could be `AA` or `Romance`
      * @author      0x0584 <rchid.anas@gmail.com>
      */
     public $type = null;
     
     /** 
-     * $f_list the datapiece's `Factors list` 
+     * The DataPiece's factors list 
      *
+     * @package     kNN
      * @description the number of the factors could be anything, but it 
      *              must be the same for all other datapieces. 
      * @author      0x0584 <rchid.anas@gmail.com>
@@ -55,11 +77,12 @@ class DataPiece {
     public $f_list = null;
 
     /**
-     * DataPiece constructor
+     * DataPiece constructor taking type and array of factors
      * 
+     * @package     kNN
      * @description initialize the object's 
      * @author      0x0584 <rchid.anas@gmail.com> 
-     * @staticvar   $__types array of data types 
+     * @staticvar   array $__types of all data types 
      * @param       string $type the type of the datapiece
      * @param       array $f_list list of factors 
      */
@@ -99,10 +122,11 @@ class DataPiece {
     /**
      * DataPiece toString 
      * 
+     * @package     kNN
      * @description this return the object as the following form 
      *              `AA | 52.10 56.23 11.00 2.37`
      * @author 0x0584 <rchid.anas@gmail.com>
-     * @return      string $str the object information as a String
+     * @return      string DataPiece's information as a String
      */
     public function __toString() {
         $str = $this->type." | ";
@@ -113,21 +137,19 @@ class DataPiece {
 
         return $str;
     }
-
-    public function getTypesList() {
-        return self::$__types;
-    }
 }
 
 /** 
- * Get data from the $filename 
- * @description get data from a file, named $filename, and put it into
+ * Get data from the a certain file 
+ *
+ * @package     kNN
+ * @description get data from a file, and put it into
  *              an array of DataPieces
  * @author      0x0584 <rchid.anas@gmail.com>
- * @param       $filename as a string, default is `data.txt`
- * @return      array of DataPiece's
+ * @param       string $filename, indeed its path
+ * @return      array $data list of DataPieces in $filename
  */
-function getdata($filename = "data.txt") {
+function getdata($filename = 'data.txt') {
     $fh = fopen($filename, 'r');
     $data[] = null; /* initialize the first element as null 
                      * because you can't declare variables 
@@ -147,14 +169,15 @@ function getdata($filename = "data.txt") {
 }
 
 /** 
- * Calculate the distance between $x and $y, which are array of factors,
- * using the Ecludian methode
+ * Calculate the distance between $facts0 and $facts1, which are
+ * array of factors, using the Ecludian methode
  *
+ * @package     kNN
  * @description get data from a file into an array of data pieces
  * @author      0x0584 <rchid.anas@gmail.com>
- * @param       $facts0 first array of factors list
- * @param       $facts1 second array of factors list
- * @return      $squrs somme of the square root of all the 
+ * @param       array $facts0 as a factors list
+ * @param       array $facts1 as a factors list
+ * @return      float $squrs distance between $facts0 and $facts1
  */
 function calcdistance($facts0, $facts1) {
     /* factors count */
@@ -177,12 +200,13 @@ function calcdistance($facts0, $facts1) {
  * Compute the distance between the $element and all the other 
  * elements in the $data set
  *
+ * @package     kNN
  * @description this function calls `calcdistance` to compute 
  *              the distance between elements
  * @author      0x0584 <rchid.anas@gmail.com>
- * @param       $element the target Datapiece
- * @param       $data array of all the Datapieces
- * @return      $results array of types and thier distances 
+ * @param       DataPiece $element which is the target Datapiece
+ * @param       array $data of all the Datapieces
+ * @return      array $results of types and thier distances 
  */
 function compute_results($element, $data) {
     /* 1. find the distance between the element and everything else */
@@ -206,11 +230,12 @@ function compute_results($element, $data) {
 /** 
  * List neighbors based on the $results
  *
+ * @package     kNN
  * @description get the top $k-elements from the results
  * @author      0x0584 <rchid.anas@gmail.com>
- * @param       $results array of distances 
- * @param       $k the target number of elements to pick from $results
- * @return      $list of neighbors
+ * @param       array $results of distances 
+ * @param       array $k the target number of elements to pick from $results
+ * @return      array $list of neighbors
  */
 function list_neighbors($results, $k) {
     $list = null;
@@ -227,16 +252,16 @@ function list_neighbors($results, $k) {
 /** 
  * Find the $k-th Nearest Neighbor to the passed $element in $data
  * 
+ * @package     kNN
  * @description compute the distances using `calcdistance`. then 
  *              take the closest $k-th elements and find the $type
  *              match. return the $type.
  * @author      0x0584 <rchid.anas@gmail.com>
- * @staticvar   $__types array of types from class DataPiece 
- * @param       $element is DataPiece
- * @param       $data is an array of DataPieces 
- * @param       $k is the number of the nearest neighbors to take
- *              from $data
- * @return      the guessed $type of the element 
+ * @staticvar   array $__types from the DataPiece class 
+ * @param       DataPiece $element which is the target
+ * @param       array $data of DataPieces 
+ * @param       number $k of the nearest neighbors to take from $data
+ * @return      string $type which is the guessed of the $element 
  */
 function find_nn($element, $data, $k = 3) {
     /* 1. calculate the distance between the element 
@@ -283,13 +308,14 @@ function find_nn($element, $data, $k = 3) {
 /** 
  * This function is used with PHP's built-in sort function `usort` 
  * 
+ * @package     kNN
  * @description compare $a and $b to achieve descendant order, which 
  *              both are associative array, members are string $type
  *              and a float $distance 
  * @author      0x0584 <rchid.anas@gmail.com>
- * @param       $a first element to compare
- * @param       $b second element to compare 
- * @return      true if $b's distance is bigger than $a's distance
+ * @param       array $a containing type and distance
+ * @param       array $b containing type and distance
+ * @return      boolean; true if $b's distance is bigger than $a's distance
  */
 function descendant($a, $b) {
     return $a['distance'] < $b['distance'];
