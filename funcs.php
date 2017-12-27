@@ -281,27 +281,44 @@ function find_nn($element, $data, $k = 3) {
         foreach (DataPiece::$__types as $t) {
             if (!strcmp($element, $t)) {
                 /* update type's count */
-                $type_count[$type_index]++;
-                /* take a */ break;
-            }
-            $index_type++;
+                $type_count[$index_type]++;
+                break;
+            } else $index_type++;
         }
     }
 
-    /* i have to learn ohw to deal with arrays, as quick as possible! */    
-    $type_count = array_splice($type_count, 1);
-    
-    /* 3. select the biggest element's index */
-    for ($i = 0, $index_max = $type_count[$i];
-         $i < count($type_count); $i++) {
+    /* 3.1. select the biggest element's index */
+    $index_max = 0;
+    for ($i = 0; $i < count($type_count); $i++) {
         if ($type_count[$i] > $type_count[$index_max]) {
-            echo $index_max = $i;
+            $index_max = $i;
         }
     }
 
-    /* 4. we found it! */
-    $type = DataPiece::$__types[$index_max];
+    /* 3.2 select elements with equal value */
+    $max_value = $type_count[$index_max];
+    $index_probable = [];
     
+    for ($i = 0; $i < count($type_count); $i++) {
+        if ($type_count[$i] === $max_value) {
+            $index_probable[] = $i;
+        }
+    }
+    
+    /* 4. we found it! */
+    $type = [];
+    $i = 0;
+    foreach (Datapiece::$__types as $key => $value) {
+        foreach ($index_probable as $pb) {
+            if ($i === $pb) {
+                $type[] = $value;
+                break;              // !?!
+            }
+        }
+        
+        $i++;
+    }
+
     return $type;
 }
 

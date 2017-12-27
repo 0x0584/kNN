@@ -35,35 +35,43 @@
  */
 require_once 'funcs.php';
 
-/* Input:
+/**
+ * Input:
  *
  * take the $k-elements from a given $data set in order to find the $type
  * of a $mystery_element. 
- */
+ * * * * * * * * * * * * * * * * * * */
+
 $k = 3;                         /* le nombre des elements proche */
 $dataset = getdata();           /* les donnees */
 
 /* l'element mystere que on veut deduire son type */
 $mystery_element = new DataPiece('?',           /* le type inconnue */
-                                 array(11, 2)); /* les facteurs */
+                                 array(180, 82)); /* les facteurs */
 
-/* Process:
+/**
+ * Process:
  *
  * find how much the $mystery_element is far from other elements of the
  * $data set. then, get $k-neighbors based on the higest distance. the
  * we determine the $type that is more likely 
- */
+ * * * * * * * * * * * * * * * * * * */
+
 /* les resultat des calcules */
 $results = compute_results($mystery_element, $dataset);
+
 /* list des elements les plus proches dans la base de donnee */
 $neighbors = list_neighbors($results, $k);
+
 /* on deduit le type */
 $type = find_nn($mystery_element, $dataset, $k);
 
-/* Output: 
+/**
+ * Output: 
  *
  * showing how the process goes.. 
- */
+ * * * * * * * * * * * * * * * * * * */
+
 echo "liste des elements".BR.BR.implode(BR, $dataset).BR;
 echo HR;
 echo "l'element que nous voulons connaitre son type $mystery_element".BR;
@@ -75,6 +83,6 @@ foreach ($results as $r) {
 echo HR;
 echo "liste des $k-neighbors les plus proche: ".implode(', ', $neighbors);
 echo HR;
-echo "son type est fort probable: ".$type;
+echo "son type est fort probable: ". implode(", ", $type);
 echo HR;
 ?>
